@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myTest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+</head>
+
+<script>
+    let app = angular.module('myTest', [])
+    app.controller('myCtrl', function ($scope, $http, $window) {
+        $scope.articles =<%- JSON.stringify(message) %>
+
+            $scope.deleteArticle = function () {
+                //this correspond la div englobé par le controller, donc this.article_id correspond à l'article sur lequel on click dna sla liste
+                let article_id = this.article._id
+
+                /*
+                console.log(this.article._id)
+                console.log(this.articles)
+                */
+
+                let config = {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+
+                $http
+                    .delete(`http://localhost:8000/article/${article_id}/delete`, config)
+                    .then(function (response) {
+                        if (!response.error) {
+                            $scope.articles = response.data.message
+                        }
+                    })
+
+            }
+
+        $scope.submitAddArticle = function () {
+            let submitThis = this;
+
+            let data = ({
+                article_data: {title: this.title, description: this.description}
+            })
+
+            let config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+
+            $http.post('http://localhost:8000/article/add', data, config)
+                .then(function (response) {
+                    if (!response.error) {
+                        $scope.articles = response.data.message
+
+                        //reset field value
+                        submitThis.title = ""
+                        submitThis.description = ""
+                    }
+                })
+        }
+
+        //reddirect
+        $scope.editArticle = function () {
+            let article_id = this.article._id; //
+            $window.location.href = `/article/${article_id}/edit`;
+        }
+
+
+    })
+
+
+</script>
+
+
+<body ng-controller="myCtrl">
+<ul ng-repeat="article in articles">
+    <li>{{article._id}}</li>
+    <li>{{article.title}}</li>
+    <li>{{article.description}}</li>
+    <li>{{article.date_publicated}}</li>
+    <button ng-click="deleteArticle()">Delete</button>
+    <button ng-click="editArticle()">Edit</button>
+</ul>
+
+
+<form ng-submit="submitAddArticle()">
+    <input type="text" name="title" ng-model="title">
+    <textarea name="description" ng-model="description"></textarea>
+    <input type="submit" value="add article">
+</form>
+
+
+</body>
+</html>
+
+

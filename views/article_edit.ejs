@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" ng-app="myTest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Edit article</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+</head>
+
+<script>
+    let app = angular.module('myTest', [])
+    app.controller('editCtrl', function ($scope, $http, $window) {
+        $scope.article = <%- JSON.stringify(message) %>
+
+
+        $scope.update = function(){
+            let submitThis = this;
+
+            let data = ({
+                title: this.title ,
+                description: this.description
+            })
+
+            let config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+
+            $http
+                .put(`http://localhost:8000/article/${$scope.article._id}/update`,data ,config)
+                .then(function (response) {
+                    console.log(response)
+                    if(!response.data.error){
+
+                        console.log(response.data)
+
+                        //reset field value
+                        /*
+                        submitThis.title = ""
+                        submitThis.description = ""
+                        */
+                        $window.location.href = "/" //redirect to list
+                    }
+                })
+
+        }
+
+    });
+</script>
+
+
+<body ng-controller="editCtrl"> <!-- in controller if we do this. its access to any property binded in the cotroller -->
+    <form ng-submit="update()">
+        <p style="color:grey;">{{article.title}}</p> <p> nouveau : {{title}}</p>
+        <p style="color:grey;">{{article.description}}</p> <p> nouveau : {{description}}</p>
+
+        <input type="text" name="title" ng-model="title" value="{{article.title}}">
+
+        <br>
+        <br>
+
+
+        <textarea name="description" ng-model="description">{{article.description}}</textarea>
+        <input type="submit" value="update">
+    </form>
+</body>
+</html>
